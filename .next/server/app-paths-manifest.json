@@ -1,7 +1,0 @@
-{
-  "/page": "app/page.js",
-  "/(main)/library/page": "app/(main)/library/page.js",
-  "/(main)/avatars/[id]/page": "app/(main)/avatars/[id]/page.js",
-  "/(main)/studio/page": "app/(main)/studio/page.js",
-  "/(main)/dashboard/page": "app/(main)/dashboard/page.js"
-}
