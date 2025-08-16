@@ -1,4 +1,5 @@
 import dynamic from 'next/dynamic'
+import { useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
@@ -6,11 +7,91 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Palette, Video, Image } from 'lucide-react'
+import { renderImageViaKie, renderVideoViaKie } from '@/lib/providers/kieai'
 
 const DynamicPageWrapper = dynamic(() => import('@/components/layout/page-wrapper').then((mod) => ({ default: mod.PageWrapper })), { ssr: false })
 const DynamicJobRow = dynamic(() => import('@/components/ui/job-row').then((mod) => ({ default: mod.JobRow })), { ssr: false })
 
 export default function StudioPage() {
+  // Image generation state
+  const [imagePrompt, setImagePrompt] = useState('')
+  const [imageSeed, setImageSeed] = useState('')
+  const [imageGuidance, setImageGuidance] = useState('7.5')
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false)
+
+  // Video generation state
+  const [videoPrompt, setVideoPrompt] = useState('')
+  const [videoDuration, setVideoDuration] = useState('5')
+  const [videoMotion, setVideoMotion] = useState('0.8')
+  const [isGeneratingVideo, setIsGeneratingVideo] = useState(false)
+
+  // Handle image generation
+  const handleGenerateImage = async () => {
+    if (!imagePrompt.trim()) {
+      alert('Please enter a prompt for image generation')
+      return
+    }
+
+    setIsGeneratingImage(true)
+    try {
+      const response = await renderImageViaKie({
+        org_id: 'demo-org',
+        avatar_id: 'demo-avatar',
+        prompt: imagePrompt,
+        width: 1024,
+        height: 1024
+      })
+      
+      console.log('Image generation response:', response)
+      
+      if (response.status === 'succeeded' && response.image_url) {
+        alert('Image generated successfully! Check the console for details.')
+      } else if (response.status === 'queued') {
+        alert('Image generation started! Job ID: ' + response.job_id)
+      } else {
+        alert('Image generation failed. Check console for details.')
+      }
+    } catch (error) {
+      console.error('Image generation error:', error)
+      alert('Error generating image. Check console for details.')
+    } finally {
+      setIsGeneratingImage(false)
+    }
+  }
+
+  // Handle video generation
+  const handleGenerateVideo = async () => {
+    if (!videoPrompt.trim()) {
+      alert('Please enter a prompt for video generation')
+      return
+    }
+
+    setIsGeneratingVideo(true)
+    try {
+      const response = await renderVideoViaKie({
+        org_id: 'demo-org',
+        avatar_id: 'demo-avatar',
+        prompt: videoPrompt,
+        seconds: parseInt(videoDuration) || 5
+      })
+      
+      console.log('Video generation response:', response)
+      
+      if (response.status === 'succeeded' && response.video_url) {
+        alert('Video generated successfully! Check the console for details.')
+      } else if (response.status === 'queued') {
+        alert('Video generation started! Job ID: ' + response.job_id)
+      } else {
+        alert('Video generation failed. Check console for details.')
+      }
+    } catch (error) {
+      console.error('Video generation error:', error)
+      alert('Error generating video. Check console for details.')
+    } finally {
+      setIsGeneratingVideo(false)
+    }
+  }
+
   const recentJobs = [
     {
       provider: 'DALL-E',
@@ -58,21 +139,42 @@ export default function StudioPage() {
                   <Label htmlFor="prompt">Prompt</Label>
                   <Textarea
                     id="prompt"
-                    placeholder="Describe the image you want to generate..."
+                    value={imagePrompt}
+                    onChange={(e) => setImagePrompt(e.target.value)}
+                    placeholder="Describe the image you want to generate... (e.g., A serene mountain landscape at sunset)"
                     className="mt-2"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="seed">Seed</Label>
-                    <Input id="seed" type="number" placeholder="Random" className="mt-2" />
+                    <Input 
+                      id="seed" 
+                      type="number" 
+                      value={imageSeed}
+                      onChange={(e) => setImageSeed(e.target.value)}
+                      placeholder="Random" 
+                      className="mt-2" 
+                    />
                   </div>
                   <div>
                     <Label htmlFor="guidance">Guidance Scale</Label>
-                    <Input id="guidance" type="number" placeholder="7.5" className="mt-2" />
+                    <Input 
+                      id="guidance" 
+                      type="number" 
+                      value={imageGuidance}
+                      onChange={(e) => setImageGuidance(e.target.value)}
+                      placeholder="7.5" 
+                      className="mt-2" 
+                    />
                   </div>
                 </div>
-                <Button>Generate Image</Button>
+                <Button 
+                  onClick={handleGenerateImage}
+                  disabled={isGeneratingImage}
+                >
+                  {isGeneratingImage ? 'Generating...' : 'Generate Image'}
+                </Button>
               </div>
             </Card>
           </TabsContent>
@@ -88,25 +190,55 @@ export default function StudioPage() {
                   <Label htmlFor="video-prompt">Prompt</Label>
                   <Textarea
                     id="video-prompt"
-                    placeholder="Describe the video motion..."
+                    value={videoPrompt}
+                    onChange={(e) => setVideoPrompt(e.target.value)}
+                    placeholder="Describe the video motion... (e.g., A gentle ocean wave rolling onto the shore)"
                     className="mt-2"
                   />
                 </div>
                 <div>
                   <Label htmlFor="input-image">Input Image</Label>
-                  <Input id="input-image" type="file" accept="image/*" className="mt-2" />
+                  <Input 
+                    id="input-image" 
+                    type="file" 
+                    accept="image/*" 
+                    className="mt-2"
+                    disabled
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">File upload coming soon - using prompt-based generation for now</p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="duration">Duration (seconds)</Label>
-                    <Input id="duration" type="number" placeholder="5" className="mt-2" />
+                    <Input 
+                      id="duration" 
+                      type="number" 
+                      value={videoDuration}
+                      onChange={(e) => setVideoDuration(e.target.value)}
+                      placeholder="5" 
+                      className="mt-2" 
+                    />
                   </div>
                   <div>
                     <Label htmlFor="motion">Motion Strength</Label>
-                    <Input id="motion" type="number" placeholder="0.8" className="mt-2" />
+                    <Input 
+                      id="motion" 
+                      type="number" 
+                      value={videoMotion}
+                      onChange={(e) => setVideoMotion(e.target.value)}
+                      placeholder="0.8" 
+                      className="mt-2"
+                      disabled
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">Motion strength parameter coming soon</p>
                   </div>
                 </div>
-                <Button>Generate Video</Button>
+                <Button 
+                  onClick={handleGenerateVideo}
+                  disabled={isGeneratingVideo}
+                >
+                  {isGeneratingVideo ? 'Generating...' : 'Generate Video'}
+                </Button>
               </div>
             </Card>
           </TabsContent>
@@ -124,4 +256,5 @@ export default function StudioPage() {
       </div>
     </DynamicPageWrapper>
   )
+'use client'
 }
