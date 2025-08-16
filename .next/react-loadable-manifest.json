@@ -1,0 +1,14 @@
+{
+  "app/(main)/layout.tsx -> @/components/layout/sidebar": {
+    "id": "app/(main)/layout.tsx -> @/components/layout/sidebar",
+    "files": [
+      "static/chunks/_app-pages-browser_src_components_layout_sidebar_tsx.js"
+    ]
+  },
+  "app/(main)/layout.tsx -> @/components/layout/topbar": {
+    "id": "app/(main)/layout.tsx -> @/components/layout/topbar",
+    "files": [
+      "static/chunks/_app-pages-browser_src_components_layout_topbar_tsx.js"
+    ]
+  }
+}
