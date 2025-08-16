@@ -544,6 +544,9 @@ body {
 .inline-flex{
   display: inline-flex;
 }
+.table{
+  display: table;
+}
 .grid{
   display: grid;
 }
@@ -1007,6 +1010,9 @@ body {
 }
 .p-6{
   padding: 1.5rem;
+}
+.p-12{
+  padding: 3rem;
 }
 .px-2{
   padding-left: 0.5rem;

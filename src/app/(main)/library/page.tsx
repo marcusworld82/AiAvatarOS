@@ -1,33 +1,47 @@
 import dynamic from 'next/dynamic'
+import { useState, useEffect } from 'react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { supabase } from '@/lib/supabase'
 
 const DynamicPageWrapper = dynamic(() => import('@/components/layout/page-wrapper').then((mod) => ({ default: mod.PageWrapper })), { ssr: false })
-const DynamicAssetTile = dynamic(() => import('@/components/ui/asset-tile').then((mod) => ({ default: mod.AssetTile })), { ssr: false })
+
+interface Asset {
+  id: string
+  type: 'image' | 'video'
+  source_url: string
+  meta: any
+  created_at: string
+}
 
 export default function LibraryPage() {
-  const assets = [
-    {
-      thumb: 'https://images.pexels.com/photos/3184306/pexels-photo-3184306.jpeg?auto=compress&cs=tinysrgb&w=400',
-      type: 'image' as const,
-      tags: ['fitness', 'motivation'],
-      provenanceBadge: 'DALL-E 3',
-    },
-    {
-      thumb: 'https://images.pexels.com/photos/3183150/pexels-photo-3183150.jpeg?auto=compress&cs=tinysrgb&w=400',
-      type: 'video' as const,
-      tags: ['tutorial', 'tech'],
-      provenanceBadge: 'RunwayML',
-    },
-    {
-      thumb: 'https://images.pexels.com/photos/3184291/pexels-photo-3184291.jpeg?auto=compress&cs=tinysrgb&w=400',
-      type: 'image' as const,
-      tags: ['lifestyle', 'inspiration'],
-      provenanceBadge: 'Midjourney',
-    },
-  ]
+  const [assets, setAssets] = useState<Asset[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchAssets() {
+      try {
+        const { data, error } = await supabase
+          .from('assets')
+          .select('*')
+          .order('created_at', { ascending: false })
+        
+        if (error) {
+          console.error('Error fetching assets:', error)
+        } else {
+          setAssets(data || [])
+        }
+      } catch (error) {
+        console.error('Error fetching assets:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchAssets()
+  }, [])
 
   return (
     <DynamicPageWrapper>
@@ -69,11 +83,61 @@ export default function LibraryPage() {
         </Card>
 
         {/* Asset Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {assets.map((asset, index) => (
-            <DynamicAssetTile key={index} {...asset} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {[...Array(8)].map((_, i) => (
+              <Card key={i} className="p-4">
+                <div className="aspect-square bg-gray-200 rounded-lg mb-3 animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded mb-2 animate-pulse"></div>
+                <div className="h-3 bg-gray-200 rounded animate-pulse"></div>
+              </Card>
+            ))}
+          </div>
+        ) : assets.length === 0 ? (
+          <Card className="p-12">
+            <div className="text-center">
+              <p className="text-[#6B7280] mb-4">No assets generated yet</p>
+              <p className="text-sm text-[#6B7280]">Go to Studio to generate your first image or video</p>
+            </div>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {assets.map((asset) => (
+              <Card key={asset.id} className="overflow-hidden hover:shadow-md transition-all duration-220">
+                <div className="relative aspect-square">
+                  {asset.type === 'image' ? (
+                    <img
+                      src={asset.source_url}
+                      alt="Generated asset"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <video
+                      src={asset.source_url}
+                      className="w-full h-full object-cover"
+                      controls
+                    />
+                  )}
+                  
+                  <div className="absolute top-3 right-3">
+                    <div className="bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-1 rounded">
+                      {asset.type}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-4">
+                  <p className="text-sm text-[#6B7280] mb-2">
+                    {new Date(asset.created_at).toLocaleDateString()}
+                  </p>
+                  <Button className="w-full" size="sm">
+                    Use Asset
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </DynamicPageWrapper>
   )

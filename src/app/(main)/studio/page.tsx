@@ -13,8 +13,9 @@ import { Badge } from '@/components/ui/badge';
 const DynamicPageWrapper = dynamic(() => import('@/components/layout/page-wrapper').then((mod) => ({ default: mod.PageWrapper })), { ssr: false });
 
 export default function StudioPage() {
-  const [orgId] = useState<string>('demo-org-123'); // Replace with actual ID
-  const [avatarId] = useState<string>('demo-avatar-456'); // Replace with actual ID
+  // TODO: Replace these with your actual IDs from Supabase
+  const [orgId] = useState<string>('550e8400-e29b-41d4-a716-446655440000'); // Copy from organizations table
+  const [avatarId] = useState<string>('550e8400-e29b-41d4-a716-446655440001'); // Copy from avatars table
 
   const [imagePrompt, setImagePrompt] = useState('');
   const [videoPrompt, setVideoPrompt] = useState('');
