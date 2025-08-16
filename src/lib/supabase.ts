@@ -11,7 +11,7 @@ const hasValidCredentials = supabaseUrl &&
   !supabaseAnonKey.includes('your-anon-key')
 
 // Create a mock client if credentials are not properly configured
-let supabase: any
+export let supabase: any
 
 if (hasValidCredentials) {
   supabase = createClient(supabaseUrl, supabaseAnonKey)
@@ -29,3 +29,5 @@ if (hasValidCredentials) {
   
   console.warn('Supabase not configured. Using mock client. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY in .env.local')
 }
+
+export { supabase as default }
