@@ -3,9 +3,18 @@ import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { TrendingUp, Eye, Target, DollarSign } from 'lucide-react'
 
-const DynamicPageWrapper = dynamic(() => import('@/components/layout/page-wrapper').then((mod) => ({ default: mod.PageWrapper })), { ssr: false })
-const DynamicJobRow = dynamic(() => import('@/components/ui/job-row').then((mod) => ({ default: mod.JobRow })), { ssr: false })
-const DynamicCalendarSlot = dynamic(() => import('@/components/ui/calendar-slot').then((mod) => ({ default: mod.CalendarSlot })), { ssr: false })
+const DynamicPageWrapper = dynamic(() => import('@/components/layout/page-wrapper').then((mod) => ({ default: mod.PageWrapper })), { 
+  ssr: false,
+  loading: () => <div className="animate-pulse bg-gray-200 h-96 rounded-lg"></div>
+})
+const DynamicJobRow = dynamic(() => import('@/components/ui/job-row').then((mod) => ({ default: mod.JobRow })), { 
+  ssr: false,
+  loading: () => <Skeleton className="h-16 w-full" />
+})
+const DynamicCalendarSlot = dynamic(() => import('@/components/ui/calendar-slot').then((mod) => ({ default: mod.CalendarSlot })), { 
+  ssr: false,
+  loading: () => <Skeleton className="h-12 w-full" />
+})
 
 export default function DashboardPage() {
   const kpis = [

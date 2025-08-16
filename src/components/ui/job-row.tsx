@@ -2,7 +2,13 @@
 
 import { motion } from 'framer-motion'
 import { RefreshCw, CheckCircle, AlertCircle, Clock } from 'lucide-react'
-import { formatCurrency } from '@/lib/utils'
+
+function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(amount)
+}
 
 interface JobRowProps {
   provider: string
