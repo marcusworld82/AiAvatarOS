@@ -26,5 +26,11 @@
     "files": [
       "static/chunks/_app-pages-browser_src_components_layout_topbar_tsx.js"
     ]
+  },
+  "app/(main)/studio/page.tsx -> @/components/layout/page-wrapper": {
+    "id": "app/(main)/studio/page.tsx -> @/components/layout/page-wrapper",
+    "files": [
+      "static/chunks/_app-pages-browser_src_components_layout_page-wrapper_tsx.js"
+    ]
   }
 }
