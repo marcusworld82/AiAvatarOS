@@ -7,10 +7,12 @@ const DynamicPageWrapper = dynamic(() => import('@/components/layout/page-wrappe
   ssr: false,
   loading: () => <div className="animate-pulse bg-gray-200 h-96 rounded-lg"></div>
 })
+
 const DynamicJobRow = dynamic(() => import('@/components/ui/job-row').then((mod) => ({ default: mod.JobRow })), { 
   ssr: false,
   loading: () => <Skeleton className="h-16 w-full" />
 })
+
 const DynamicCalendarSlot = dynamic(() => import('@/components/ui/calendar-slot').then((mod) => ({ default: mod.CalendarSlot })), { 
   ssr: false,
   loading: () => <Skeleton className="h-12 w-full" />
