@@ -1,22 +1,9 @@
-import dynamic from 'next/dynamic'
+import { PageWrapper } from '@/components/layout/page-wrapper'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { JobRow } from '@/components/ui/job-row'
+import { CalendarSlot } from '@/components/ui/calendar-slot'
 import { TrendingUp, Eye, Target, DollarSign } from 'lucide-react'
-
-const DynamicPageWrapper = dynamic(() => import('@/components/layout/page-wrapper').then((mod) => ({ default: mod.PageWrapper })), { 
-  ssr: false,
-  loading: () => <div className="animate-pulse bg-gray-200 h-96 rounded-lg"></div>
-})
-
-const DynamicJobRow = dynamic(() => import('@/components/ui/job-row').then((mod) => ({ default: mod.JobRow })), { 
-  ssr: false,
-  loading: () => <Skeleton className="h-16 w-full" />
-})
-
-const DynamicCalendarSlot = dynamic(() => import('@/components/ui/calendar-slot').then((mod) => ({ default: mod.CalendarSlot })), { 
-  ssr: false,
-  loading: () => <Skeleton className="h-12 w-full" />
-})
 
 export default function DashboardPage() {
   const kpis = [
@@ -59,7 +46,7 @@ export default function DashboardPage() {
   ]
 
   return (
-    <DynamicPageWrapper>
+    <PageWrapper>
       <div className="space-y-8">
         <div>
           <h1 className="text-[28px] font-bold leading-[1.3] mb-2">Dashboard</h1>
@@ -111,7 +98,7 @@ export default function DashboardPage() {
               <h2 className="text-[22px] font-bold leading-[1.3] mb-6">Today's Queue</h2>
               <div className="space-y-3">
                 {jobs.map((job, index) => (
-                  <DynamicJobRow key={index} {...job} />
+                  <JobRow key={index} {...job} />
                 ))}
               </div>
             </Card>
@@ -135,13 +122,13 @@ export default function DashboardPage() {
               <h2 className="text-[22px] font-bold leading-[1.3] mb-6">Calendar</h2>
               <div className="space-y-3">
                 {calendarSlots.map((slot, index) => (
-                  <DynamicCalendarSlot key={index} {...slot} />
+                  <CalendarSlot key={index} {...slot} />
                 ))}
               </div>
             </Card>
           </div>
         </div>
       </div>
-    </DynamicPageWrapper>
+    </PageWrapper>
   )
 }
